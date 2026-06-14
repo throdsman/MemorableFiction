@@ -11,6 +11,7 @@
 using namespace std;
 
 #define PATH "./dataFolder"
+#define AUX "./auxFolder"
 #define NUMZEROS 10
 
 void arc()
@@ -39,6 +40,7 @@ void arc()
             // Read file by file
             for (const auto &entry : std::filesystem::directory_iterator(PATH))
             {
+                
                 std::cout << entry.path().filename() << std::endl;
             }
         }
@@ -87,7 +89,7 @@ void arc()
         {
             char ext[4] = "jpg";
             const char *name = "   ";
-            data->addFile(std::rand() % 21, ext, name);
+            data->addFile(std::rand() % 21);
         }
 
         std::pair<int, clientData *> clientPair;
@@ -99,8 +101,6 @@ void arc()
     ck->mostrarTablas();
 
     delete (ck);
-
-    
 }
 
 int main()
@@ -112,6 +112,9 @@ int main()
 
     FileManager::encriptFile(PATH "/laberinto.jpg", PATH "/000000.abc");
     FileManager::decriptFile(PATH "/000000.abc", PATH "/created.jpg");
+
+    std::filesystem::path outPath;
+    FileManager::recreateOriginalFile(PATH "/000000.abc", outPath, AUX);
 
     image.close();
     receiverWrite.close();
