@@ -5,6 +5,9 @@
 #define TAM 1000
 #define MAX_REUBICACIONES 16
 
+#ifndef CHASH
+#define CHASH
+
 template <typename T>
 class cHash
 {
@@ -28,6 +31,20 @@ public:
             return true;
         }
         return false;
+    }
+    T getData(int clave)
+    {
+        int posicion1 = this->hash1(clave);
+        if (tabla1[posicion1].first == clave)
+        {
+            return tabla1[posicion1].second;
+        }
+        int posicion2 = this->hash2(clave);
+        if (tabla2[posicion2].first == clave)
+        {
+            return tabla2[posicion2].second;
+        }
+        return T();
     }
     void eliminar(int clave)
     {
@@ -114,7 +131,6 @@ public:
                 }
             }
         }
-        std::cout << "Se Detecto un ciclo, es necesario hacer reHashing" << std::endl;
     }
     void llenarTabla(int minVal, int items)
     {
@@ -139,3 +155,5 @@ private:
     std::vector<std::pair<int, T>> tabla1;
     std::vector<std::pair<int, T>> tabla2;
 };
+
+#endif

@@ -1,6 +1,10 @@
+#pragma once
 #include <vector>
 #include <cstring>
 #include <ostream>
+
+#ifndef CLIENTDATA
+#define CLIENTDATA
 
 struct clientData
 {
@@ -13,9 +17,9 @@ struct clientData
         this->fileList.reserve(minArchives);
     }
 
-    void addFile(int name)
+    void addFile(int indx)
     {
-        this->fileList.push_back(name);
+        this->fileList.push_back(indx);
     }
 
     const std::vector<int> &getFl()
@@ -38,3 +42,5 @@ struct clientData
 private:
     std::vector<int> fileList;
 };
+
+#endif

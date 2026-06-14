@@ -7,11 +7,13 @@
 #include "dataRelation.h"
 #include "dataStructures/cuckooHashing.h"
 #include "FileManager/FileManager.h"
+#include "FileManager/GestorMultimedia.h"
 
 using namespace std;
 
 #define PATH "./dataFolder"
 #define AUX "./auxFolder"
+#define TEMPLATE "./Template"
 #define NUMZEROS 10
 
 void arc()
@@ -103,23 +105,104 @@ void arc()
     delete (ck);
 }
 
+std::string getCurrentFileName(int n)
+{
+    std::string a;
+    int aux = n;
+    int digits = 0;
+    while (aux > 0)
+    {
+        digits++;
+        aux /= 10;
+    }
+    a.resize(NUMZEROS - digits, '0');
+    a += std::to_string(n);
+    return a;
+}
+
+void setupPatientData(GestorMultimedia* gm)
+{
+    std::vector<std::string> names;
+    {
+        std::ifstream namesFiles(TEMPLATE "/" "NameList.txt");
+
+        std::string line = "";
+        while (getline(namesFiles, line))
+        {
+            names.push_back(line);
+        }
+
+        namesFiles.close();
+    }
+    
+    int counter = 1;
+    for (const auto& name: names)
+    {
+        std::filesystem::path dataPath(TEMPLATE "/" "info.txt");
+        std::string aux =  getCurrentFileName(counter);
+        std::filesystem::path outFile(PATH "/" + aux + ".abc");
+
+        Archivo arch;
+        arch.paciente = name;
+        arch.fecha = std::to_string(std::rand() % 24);
+        std::string fileName = name + "Info";
+        FileManager::encriptFile(dataPath, outFile, arch, fileName);
+
+        gm->indexarArchivo(arch);
+
+        std::ofstream oFile(outFile, std::ios::binary);
+        std::string basicInfo = "Paciente: " + name;
+        oFile.write(basicInfo.c_str(), basicInfo.size());
+        oFile.close();
+        oFile.clear();
+
+        clientData cData(2);
+        cData.addFile(counter-1);
+        counter += 1;
+
+        if (counter%5 == 0)
+        {
+            std::filesystem::path templateImage(TEMPLATE "/" "scan.jpg");
+            std::string imageaux = getCurrentFileName(counter);
+            std::filesystem::path imagePath(PATH "/" + imageaux + ".abc");
+
+            Archivo imgData;
+            imgData.paciente = name;
+            imgData.fecha = std::to_string(std::rand() % 24);
+            FileManager::encriptFile(templateImage, imagePath, imgData, name + "Scan");
+            gm->indexarArchivo(imgData);
+            cData.addFile(counter-1);
+            counter += 1;
+        }
+
+        gm->guardarDataCliente((std::rand() % 29999999) + 70000000, cData);
+    }
+}
+
 int main()
 {
-    std::ifstream image(PATH "/laberinto.jpg", std::ios::binary);
-    std::ofstream receiverWrite(PATH "/000000.abc", std::ios::binary);
-    std::ifstream receiverRead(PATH "/000000.abc", std::ios::binary);
-    std::ofstream created(PATH "/created.jpg", std::ios::binary);
+    GestorMultimedia gm;
+    setupPatientData(&gm);
 
-    FileManager::encriptFile(PATH "/laberinto.jpg", PATH "/000000.abc");
-    FileManager::decriptFile(PATH "/000000.abc", PATH "/created.jpg");
+    bool flag = false;
+    int dni = 0;
+    while (!flag)
+    {
+        std::cout << "Ingresa dni a Buscar: "; 
+        std::cin >> dni;
 
-    std::filesystem::path outPath;
-    FileManager::recreateOriginalFile(PATH "/000000.abc", outPath, AUX);
+        flag = gm.searchDNIFiles(dni);
+    }
 
-    image.close();
-    receiverWrite.close();
-    receiverRead.close();
-    created.close();
+    char currentLetter = ' ';
+    std::string currentPreFix = "";
+    while (currentLetter != '0')
+    {
+        std::cin >> currentLetter;
+        currentPreFix += currentLetter;
+        std::cout << "Busqueda: " << currentPreFix << std::endl;
+        gm.autocompletar(currentPreFix);
+    }
 
     return 0;
 }
