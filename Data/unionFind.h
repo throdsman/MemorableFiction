@@ -4,7 +4,8 @@
 
 using namespace std; 
  
-class UnionFind 
+// ADAPT!!!!!!
+class unionFind 
 { 
 
 private: 
@@ -14,32 +15,52 @@ private:
 
 public: 
 
-    UnionFind(int n) { 
+    unionFind()
+    {
+        
+    }
+
+    unionFind(int n, int types) { 
 
         parent.resize(n); 
 
         rango.resize(n, 0); 
 
- 
-
-        for (int i = 0; i < n; i++) { 
-
-            parent[i] = i; 
-
+        for (int i = 0; i < n; i++) 
+        { 
+            if (i < types)
+            {
+                rango[i] = -1;
+            }
+            parent[i] = i;
         } 
 
     } 
 
-    int find(int x) { 
+    int find(int x) 
+    { 
+        int root = parent[x];
 
-        if (parent[x] == x) 
-            return x; 
+        if (this->parent[root] != root)
+        {
+            return parent[x] = find(root);
+        }
 
-        parent[x] = find(parent[x]); 
-
-        return parent[x]; 
-
+        return root;
     } 
+
+    std::vector<int> get(int x)
+    {
+        std::vector<int> ret;
+        int val = parent[x];
+        while (val != x)
+        {
+            ret.push_back(val);
+            x = val;
+            val = parent[val];
+        }
+        return ret;
+    }
 
     void unite(int a, int b) { 
 
@@ -51,38 +72,26 @@ public:
 
 
         if (rango[raizA] < rango[raizB]) { 
-
             parent[raizA] = raizB; 
-
+            rango[raizB] += rango[raizA];
         } 
-
         else if (rango[raizA] > rango[raizB]) { 
-
             parent[raizB] = raizA; 
-
+            rango[raizA] += rango[raizB];
         } 
-
         else { 
-
             parent[raizB] = raizA; 
-
             rango[raizA]++; 
-
         } 
 
     } 
 
     bool mismoGrupo(int a, int b) { 
-
         return find(a) == find(b); 
-
     } 
 
     void mostrarPadres() { 
-
         cout << "\nTabla de representantes:\n"; 
-
- 
 
         for (size_t i = 0; i < parent.size(); i++) { 
 
@@ -90,7 +99,7 @@ public:
 
                  << " -> Grupo " 
 
-                 << find(i) << endl; 
+                 << parent[i] << endl; 
 
         } 
 

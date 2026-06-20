@@ -1,0 +1,225 @@
+#pragma once
+
+#ifndef FILEMANAGER
+#define FILEMANAGER
+
+#include <vector>
+#include <string>
+#include <iostream>
+#include <queue>
+#include <map>
+#include "../Data/ArchivoMultimedia.h"
+#include "../Data/clientData.h"
+#include "../Data/cuckooHashing.h"
+#include "../Data/heapStruct.h"
+#include "../Data/trieStruct.h"
+#include "../Data/unionFind.h"
+#include "../Data/DataEnums.h"
+#include "../FileHelper/FileHelper.h"
+#include "../Indexation/IndexManager.h"
+
+class IndexManager;
+
+using namespace std;
+
+class FileManager 
+{
+private:
+    IndexManager* indexManager; // indices de archivos
+    TrieBusqueda indiceTrie;   // Motor de prefijos
+    std::map<std::string, int> indiceHash;      // Motor de búsqueda exacta
+    HeapFecha heapFecha; // Motor de búsqueda por fechas
+    HeapFecha heapSize; // Motor de búsqueda por tamaño
+    cHash<clientData> dniStorage; // Información relevante del cliente
+    unionFind ufTypes;
+    int currentDNISearched= 0; // Paciente actual en revisión
+    const int Types;
+
+public:
+
+    FileManager(int maxTypes):Types(maxTypes)
+    {
+        indexManager = new IndexManager();
+    }
+
+// RF01 & RF02: Simulación de escaneo e indexación en RAM (RF03) + Simulación de volumenes de archivos
+    void SearchFiles()
+    {
+        std::vector<std::pair<int, clientData>> outVec;
+        indexManager->createPatientFiles(outVec);
+
+        for (const auto& d: outVec)
+        {
+            guardarDataCliente(d.first, d.second);
+        }
+    }
+
+
+    void guardarDataCliente(int dni, clientData d)
+    {
+        this->dniStorage.insertar({dni, d});
+        std::cout << dni << std::endl;
+    }
+
+    void clearCurrentSearch()
+    {
+        this->currentDNISearched = 0;
+    }
+
+    bool searchDNIFiles(int DNI)
+    {
+        if (!this->dniStorage.buscar(DNI))
+        {
+            std::cout << printf("DNI: {}. Not on DB", DNI) << std::endl; 
+            return false;
+        }
+
+
+        currentDNISearched = DNI;
+        std::vector<int> indexes = dniStorage.getData(DNI).getFl(); // obtiene los indices de los files asociados del paciente
+        ufTypes = unionFind(indexes.size(), Types);
+        for (const auto& indx: indexes)
+        {
+            ArchivoMultimedia arch = indexManager->get(indx);
+            std::cout << indx << " : " << arch.nombre << std::endl;
+            indiceHash[arch.nombre] = indx; // busqueda exacta
+            indiceTrie.insertar(arch.nombre, indx); // parcial
+            heapFecha.insertar(arch); // fecha
+            heapSize.insertar(arch); // tamano
+            agregarTipoArchivo(arch.tipo, indx + (Types));// tipo
+        }
+
+        return true;
+    }
+
+    void agregarTipoArchivo(std::string tipo, int i)
+    {
+        int index = -1;
+        if (tipo.compare(".jpg")) // 0 index on union find
+        {
+            index = 0;
+        }
+        else if (tipo.compare(".png"))
+        {
+            index = 1;
+        }else if (tipo.compare(".mp3"))
+        {
+            index = 2;
+        }else if (tipo.compare(".txt"))
+        {
+            index = 3;
+        }else if (tipo.compare(".mp4"))
+        {
+            index = 4;
+        }
+
+        if (index == -1)
+        {
+            std::cout << "Error on adding type of archive" << std::endl;
+            return;
+        }
+
+        ufTypes.unite(index, i);
+    }
+
+ // RF04: Búsqueda Exacta
+    void buscarExacta(std::string nombre) 
+    {
+        if (currentDNISearched == 0)
+        {
+            return;
+        }
+
+        if (indiceHash.count(nombre)) {
+            int i = indiceHash[nombre];
+            cout << "[EXACTA] Encontrado: " << indexManager->get(i).ruta << endl;
+        } else cout << "No hay coincidencia exacta." << endl;
+    }
+ 
+
+// RF05: Búsqueda por Prefijo usando el TRIE 
+    void autocompletar(std::string prefijo) 
+    { 
+        if (currentDNISearched == 0)
+        {
+            std::cout << "\n Ingresar primer DNI!" << std::endl;
+            return;
+        }
+
+        cout << "\n--- Resultados de búsqueda parcial para '" << prefijo << "' ---" << endl; 
+        std::vector<int> resultados = indiceTrie.buscarPrefijo(prefijo); 
+        
+        for (const auto& res: resultados)
+        {
+            ImprimirArchivo(indexManager->get(res));
+        }
+    }
+
+    // Busqueda por fecha usando heaps
+    void busquedaPorFecha()
+    {
+        auto files = heapFecha.ordenados();
+
+        for (const auto& f: files)
+        {
+            ImprimirArchivo(f);
+        }
+    }
+
+    // Busqueda por tipo de archivo: usando union find
+    void busquedaPorTipo(FileType type)
+    {
+        std::vector<int> archives;
+        switch (type)
+        {
+            case FileType::jpg:
+            {
+                archives = ufTypes.get(0);
+                break;
+            }
+            case FileType::png:
+            {
+                archives = ufTypes.get(1);
+                break;
+            }
+            case FileType::mp3:
+            {
+                archives = ufTypes.get(2);
+                break;
+            }
+            case FileType::txt:
+            {
+                archives = ufTypes.get(3);
+                break;
+            }
+            case FileType::mp4:
+            {
+                archives = ufTypes.get(4);
+                break;
+            }
+        }
+        
+        for (const auto& res: archives)
+        {
+            ImprimirArchivo(indexManager->get(res - (Types)));
+        }
+    }
+
+    void busquedaPorSize()
+    {
+        auto files = heapSize.ordenados();
+
+        for (const auto& f: files)
+        {
+            ImprimirArchivo(f);
+        }
+    }
+
+    void ImprimirArchivo(ArchivoMultimedia a)
+    {
+        std::printf("- Archivo: %s, Tamaño: %i bytes, Ext: %s, Path: %s \n", a.nombre, a.tamano, a.tipo, a.ruta);
+    }
+
+};
+
+#endif

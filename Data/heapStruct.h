@@ -4,13 +4,14 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include "../FileManager/FileManager.h"
+#include "ArchivoMultimedia.h"
 
 using namespace std;
 
+//Urgent Change
 class HeapFecha {
 private:
-    vector<FileManager::ArchivoMultimedia> datos;
+    vector<ArchivoMultimedia> datos;
 
     void subir(int i) {
         while (i > 0) {
@@ -42,36 +43,36 @@ private:
     }
 
 public:
-    void insertar(FileManager::ArchivoMultimedia a) {
+    void insertar(ArchivoMultimedia a) {
         datos.push_back(a);
         subir(datos.size() - 1);
     }
 
-    FileManager::ArchivoMultimedia top() {
+    ArchivoMultimedia top() {
         if (datos.empty()) throw runtime_error("Heap vacio");
         return datos[0];
     }
 
-    FileManager::ArchivoMultimedia extraer() {
+    ArchivoMultimedia extraer() {
         if (datos.empty()) throw runtime_error("Heap vacio");
-        FileManager::ArchivoMultimedia resultado = datos[0];
+        ArchivoMultimedia resultado = datos[0];
         datos[0] = datos.back();
         datos.pop_back();
         if (!datos.empty()) bajar(0);
         return resultado;
     }
 
-    vector<FileManager::ArchivoMultimedia> ordenados() {
+    vector<ArchivoMultimedia> ordenados() {
         HeapFecha copia = *this;
-        vector<FileManager::ArchivoMultimedia> resultado;
+        vector<ArchivoMultimedia> resultado;
         while (!copia.vacio())
             resultado.push_back(copia.extraer());
         return resultado;
     }
 
-    FileManager::ArchivoMultimedia masAntiguo() {
+    ArchivoMultimedia masAntiguo() {
         if (datos.empty()) throw runtime_error("Heap vacio");
-        FileManager::ArchivoMultimedia minimo = datos[0];
+        ArchivoMultimedia minimo = datos[0];
         for (auto& a : datos)
             if (a.fecha < minimo.fecha) minimo = a;
         return minimo;
