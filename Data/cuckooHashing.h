@@ -140,6 +140,24 @@ public:
             this->insertar(i + (std::rand() % minVal) + (rnd++));
         }
     }
+    std::vector<int> getKeys()
+    {
+        std::vector<int> ret;
+        for (size_t i{0z}; i < tabla1;i++)
+        {
+            if (tabla1[i].first != -1)
+            {
+                ret.push_back(tabla1[i].first);
+            }
+
+            if (tabla2[i].first != -1)
+            {
+                ret.push_back(tabla2[i].first);
+            }
+        }
+
+        return ret;
+    }
 
 private:
     int hash1(int clave)

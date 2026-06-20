@@ -92,6 +92,16 @@ public:
         return true;
     }
 
+    void showDNI()
+    {
+        std::cout << "DNIs: " << std::endl;
+        for (const auto& d: dniStorage.getKeys())
+        {
+            std::printf("- %i", d);
+        }
+        std::cout << "--------------------------------" << std::endl;
+    }
+
     void agregarTipoArchivo(std::string tipo, int i)
     {
         int index = -1;

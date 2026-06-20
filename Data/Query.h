@@ -14,12 +14,16 @@ public:
 
     }
 
-    Query(OrderType t): type(t)
+    Query(OrderType t, FileType f, QueryType q, SortType s)
+    : orderType(t), fileType(f), queryType(q), sortType(s)
     {
 
     }
 public:
-    OrderType type;
+    OrderType orderType;
+    FileType fileType;
+    QueryType queryType;
+    SortType sortType;
 };
 
 #endif
