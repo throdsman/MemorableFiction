@@ -78,6 +78,7 @@ public:
                 ArchivoMultimedia imgData;
                 imgData.paciente = name;
                 imgData.fecha = std::to_string(std::rand() % 24);
+                imgData.dni = cDni;
                 FileHelper::encriptFile(templateImage, imagePath, imgData, name + "Scan");
                 this->archivoList.push_back(imgData);
                 cData.addFile(counter-1);
@@ -111,6 +112,12 @@ public:
         }
     }
 
+    void addArchivo(ArchivoMultimedia a, int& indx)
+    {
+        indx = archivoList.size();
+        archivoList.push_back(a);
+    }
+
     ArchivoMultimedia& get(int indx)
     {
         return this->archivoList[indx];
@@ -119,6 +126,29 @@ public:
     const ArchivoMultimedia& get(int indx) const
     {
         return this->archivoList[indx];
+    }
+
+    int getCount()
+    {
+        return archivoList.size();
+    }
+
+    std::vector<int> checkIntegrity()
+    {
+        std::vector<int> ret;
+        for (size_t i{0u}; i < archivoList.size(); i++)
+        {
+            if (!FileHelper::do_file_exist(archivoList[i].ruta))
+            {
+                ret.push_back(i);
+            }
+        }
+        return ret;
+    }
+
+    void eliminateIndex(int indx)
+    {
+        archivoList.erase(archivoList.begin() + indx);
     }
 
 private:

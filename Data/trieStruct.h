@@ -37,5 +37,10 @@ public:
             curr = curr->hijos[lowC]; 
         } 
         return curr->indicesArchivos; 
-    } 
+    }
+
+    void clean()
+    {
+        delete root;
+    }
 }; 

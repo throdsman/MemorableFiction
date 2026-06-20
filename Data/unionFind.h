@@ -22,18 +22,7 @@ public:
 
     unionFind(int n, int types) { 
 
-        parent.resize(n); 
-
-        rango.resize(n, 0); 
-
-        for (int i = 0; i < n; i++) 
-        { 
-            if (i < types)
-            {
-                rango[i] = -1;
-            }
-            parent[i] = i;
-        } 
+        clear(n, types);
 
     } 
 
@@ -105,4 +94,19 @@ public:
 
     } 
 
+    void clear(int n, int types)
+    {
+        parent.resize(n); 
+
+        rango.resize(n, 0); 
+
+        for (int i = 0; i < n; i++) 
+        { 
+            if (i < types)
+            {
+                rango[i] = -1;
+            }
+            parent[i] = i;
+        } 
+    }
 };

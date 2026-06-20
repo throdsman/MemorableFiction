@@ -14,8 +14,15 @@ class cHash
 public:
     cHash()
     {
-        tabla1.resize(TAM, std::pair<int, T>());
-        tabla2.resize(TAM, std::pair<int, T>());
+        size = TAM;
+        tabla1.resize(size, std::pair<int, T>());
+        tabla2.resize(size, std::pair<int, T>());
+    }
+
+    cHash(int s): size(s)
+    {
+        tabla1.resize(s, std::pair<int, T>());
+        tabla2.resize(s, std::pair<int, T>());
     }
 
     bool buscar(int clave)
@@ -87,6 +94,7 @@ public:
 
     void insertar(std::pair<int, T> clave)
     {
+        size+=1;
         if (this->buscar(clave.first))
         {
             std::cout << "Esa clave ya existe" << std::endl;
@@ -159,19 +167,77 @@ public:
         return ret;
     }
 
+    std::vector<T> getValues()
+    {
+        std::vector<T> ret;
+        for (size_t i{0z}; i < tabla1;i++)
+        {
+            if (tabla1[i].first != -1)
+            {
+                ret.push_back(tabla1[i].second);
+            }
+
+            if (tabla2[i].first != -1)
+            {
+                ret.push_back(tabla2[i].second);
+            }
+        }
+
+        return ret;
+    }
+
+    std::vector<std::pair<int, T>> getList()
+    {
+        std::vector<std::pair<int, T>> ret;
+        for (size_t i{0z}; i < tabla1;i++)
+        {
+            if (tabla1[i].first != -1)
+            {
+                ret.push_back(tabla1[i]);
+            }
+
+            if (tabla2[i].first != -1)
+            {
+                ret.push_back(tabla2[i]);
+            }
+        }
+
+        return ret;
+    }
+
+    void reHash(int newSize)
+    {
+        size = newSize;
+        auto aux = getList();
+
+        tabla1.clear();
+        tabla2.clear();
+
+        for (const auto& v: aux)
+        {
+            insertar(v);
+        }
+    }
+
+    int getSize()
+    {
+        return size;
+    }
+
 private:
     int hash1(int clave)
     {
-        return clave % TAM;
+        return clave % size;
     }
     int hash2(int clave)
     {
-        return (clave / TAM) % TAM;
+        return (clave / size) % size;
     }
 
 private:
     std::vector<std::pair<int, T>> tabla1;
     std::vector<std::pair<int, T>> tabla2;
+    uint16_t size;
 };
 
 #endif

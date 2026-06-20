@@ -14,8 +14,8 @@ public:
 
     }
 
-    Query(OrderType t, FileType f, QueryType q, SortType s)
-    : orderType(t), fileType(f), queryType(q), sortType(s)
+    Query(OrderType t, FileType f, QueryType q, SortType s, UpdateType u)
+    : orderType(t), fileType(f), queryType(q), sortType(s), updateType(u)
     {
 
     }
@@ -24,6 +24,10 @@ public:
     FileType fileType;
     QueryType queryType;
     SortType sortType;
+    UpdateType updateType;
+    int DNI;
+    std::string preFix;
 };
 
 #endif
+

@@ -15,6 +15,7 @@
 #include "../Data/trieStruct.h"
 #include "../Data/unionFind.h"
 #include "../Data/DataEnums.h"
+#include "../Data/PathsNDefines.h"
 #include "../FileHelper/FileHelper.h"
 #include "../Indexation/IndexManager.h"
 
@@ -64,6 +65,33 @@ public:
     void clearCurrentSearch()
     {
         this->currentDNISearched = 0;
+        indiceTrie.clean();
+        indiceHash.clear();
+        ufTypes.clear(dniStorage.getSize(), Types); // complex crear, needs to expand
+        heapFecha.vacio();
+        heapSize.vacio();
+    }
+
+    void updateStructures(bool upscaling)
+    {
+        int upscaleValue = (upscaling) ? 1.2 : .8 ;
+        dniStorage.reHash(dniStorage.getSize() * upscaleValue);
+
+        int diff = (FileHelper::numOfFilesInPath(PATH)) - indexManager->getCount();
+        if (diff < 0)
+        {
+            auto missingList = indexManager->checkIntegrity();
+            for (const auto& m: missingList)
+            {
+                indexManager->eliminateIndex(m);
+            }
+        }
+
+        auto aux = currentDNISearched;
+
+        clearCurrentSearch();
+
+        searchDNIFiles(aux);
     }
 
     bool searchDNIFiles(int DNI)

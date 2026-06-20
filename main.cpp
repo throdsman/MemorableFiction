@@ -1,6 +1,5 @@
 
 #include "Data/unionFind.h"
-
 int main()
 {
     unionFind uf = unionFind(12, 2);

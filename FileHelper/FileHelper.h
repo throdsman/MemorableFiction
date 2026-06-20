@@ -215,6 +215,11 @@ namespace FileHelper
         a += std::to_string(n);
         return a;
     }
+
+    bool do_file_exist(std::string path)
+    {
+        return std::filesystem::exists(path);
+    }
 }
 
 #endif
