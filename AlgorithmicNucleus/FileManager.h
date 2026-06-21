@@ -185,11 +185,22 @@ public:
         }
 
         cout << "\n--- Resultados de búsqueda parcial para '" << prefijo << "' ---" << endl; 
-        std::vector<int> resultados = indiceTrie.buscarPrefijo(prefijo); 
+        std::vector<int> resultados; 
+        indiceTrie.buscarPrefijo(prefijo, resultados);
         
         for (const auto& res: resultados)
         {
             ImprimirArchivo(indexManager->get(res));
+        }
+    }
+
+    void buscarPorNombre()
+    {
+        auto words = indiceTrie.obtenerPalabras();
+
+        for (const auto& word: words)
+        {
+            std::cout << "- " << word << std::endl;
         }
     }
 

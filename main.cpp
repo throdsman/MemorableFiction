@@ -49,6 +49,40 @@ int main()
             case 4:
             {
                 consulta.orderType = OrderType::type;
+                std::printf("Ingresar Opcion de ordenamiento por tipo de archivo: \n 1) JPG \n 2) MP3 \n 3) MP4 \n 4) PNG \n 5) TXT \n");
+                std::cin >> option;
+                switch (option)
+                {
+                    case 1:
+                    {
+                        consulta.fileType = FileType::jpg;
+                        break;
+                    }
+                    case 2:
+                    {
+                        consulta.fileType = FileType::mp3;
+                        break;
+                    }
+                    case 3:
+                    {
+                        consulta.fileType = FileType::mp4;
+                        break;
+                    }
+                    case 4:
+                    {
+                        consulta.fileType = FileType::png;
+                        break;
+                    }
+                    case 5:
+                    {
+                        consulta.fileType = FileType::txt;
+                        break;
+                    }
+                    default:
+                    {
+                        std::printf("Opción no valida \n");
+                    }
+                }
                 break;
             }
         }

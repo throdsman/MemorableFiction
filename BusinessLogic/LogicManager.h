@@ -61,7 +61,7 @@ private:
         {
             case OrderType::name:
             {
-                fileManager->autocompletar("");
+                fileManager->buscarPorNombre();
                 break;
             }
             case OrderType::date:
@@ -78,62 +78,6 @@ private:
             {
                 fileManager->busquedaPorSize();
                 break;
-            }
-        }
-    }
-
-    void loopOrdenation()
-    {
-        bool flag = false;
-        while (!flag)
-        {
-            std::cout << "Ingrese DNI a buscar: " << std::endl;
-            int dni = 0;
-            std::cin >> dni;
-
-            flag = fileManager->searchDNIFiles(dni);
-        }
-    }
-
-    int getSearchOption()
-    {
-        int ret = -1;
-        std::cout << "Elegir Opción de busqueda: \n  1) Name \n  2) Size \n  3) Type \n  4) Date \n  5) Return"<< std::endl;
-        std::cin >> ret;
-        return ret;
-    }
-
-    void resolveOption(int option)
-    {
-        if (option == 5) // return
-        {
-            return;
-        }
-
-        switch (option)
-        {
-            case 1: // name
-            {
-                std::string name = "";
-                std::cin >> name;
-                fileManager->buscarExacta(name);
-                break;
-            }
-            case 2: // size
-            {
-                break;
-            }
-            case 3: // type
-            {
-                break;
-            }
-            case 4: // date
-            {
-                break;
-            }
-            default: // go again
-            {
-                std::cout << "Select a valid option!" << std::endl;
             }
         }
     }
