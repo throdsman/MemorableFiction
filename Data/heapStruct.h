@@ -32,7 +32,7 @@ private:
 
             if (izq < n && datos[izq].fecha > datos[mayor].fecha)
                 mayor = izq;
-            if (der < n && datos[der].fecha > datos[mayor].fecha)
+            if (der < n && datos[der].fecha > datos[mayor].fecha) 
                 mayor = der;
 
             if (mayor != i) {

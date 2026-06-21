@@ -11,7 +11,7 @@
 #include "../Data/ArchivoMultimedia.h"
 #include "../Data/clientData.h"
 #include "../Data/cuckooHashing.h"
-#include "../Data/heapStruct.h"
+#include "../Data/skewHeap.h"
 #include "../Data/trieStruct.h"
 #include "../Data/unionFind.h"
 #include "../Data/DataEnums.h"
@@ -29,8 +29,8 @@ private:
     IndexManager* indexManager; // indices de archivos
     TrieBusqueda indiceTrie;   // Motor de prefijos
     std::map<std::string, int> indiceHash;      // Motor de búsqueda exacta
-    HeapFecha heapFecha; // Motor de búsqueda por fechas
-    HeapFecha heapSize; // Motor de búsqueda por tamaño
+    skewHeap<ArchivoMultimedia> heapFecha; // Motor de búsqueda por fechas
+    skewHeap<ArchivoMultimedia> heapSize; // Motor de búsqueda por tamaño
     cHash<clientData> dniStorage; // Información relevante del cliente
     unionFind ufTypes;
     int currentDNISearched= 0; // Paciente actual en revisión
@@ -68,8 +68,8 @@ public:
         indiceTrie.clean();
         indiceHash.clear();
         ufTypes.clear(dniStorage.getSize(), Types); // complex crear, needs to expand
-        heapFecha.vacio();
-        heapSize.vacio();
+        heapFecha.empty();
+        heapSize.empty();
     }
 
     void updateStructures(bool upscaling)
@@ -112,8 +112,8 @@ public:
             std::cout << indx << " : " << arch.nombre << std::endl;
             indiceHash[arch.nombre] = indx; // busqueda exacta
             indiceTrie.insertar(arch.nombre, indx); // parcial
-            heapFecha.insertar(arch); // fecha
-            heapSize.insertar(arch); // tamano
+            heapFecha.merge(new skewNode<ArchivoMultimedia>(std::stoi(arch.fecha), arch)); // fecha
+            heapSize.merge(new skewNode<ArchivoMultimedia>(arch.tamano, arch)); // tamano
             agregarTipoArchivo(arch.tipo, indx + (Types));// tipo
         }
 
@@ -196,11 +196,11 @@ public:
     // Busqueda por fecha usando heaps
     void busquedaPorFecha()
     {
-        auto files = heapFecha.ordenados();
+        auto files = heapFecha.getList();
 
         for (const auto& f: files)
         {
-            ImprimirArchivo(f);
+            ImprimirArchivo(f.value);
         }
     }
 
@@ -245,11 +245,11 @@ public:
 
     void busquedaPorSize()
     {
-        auto files = heapSize.ordenados();
+        auto files = heapSize.getList();
 
         for (const auto& f: files)
         {
-            ImprimirArchivo(f);
+            ImprimirArchivo(f.value);
         }
     }
 

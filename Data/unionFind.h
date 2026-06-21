@@ -32,7 +32,7 @@ public:
 
         if (this->parent[root] != root)
         {
-            return parent[x] = find(root);
+            return find(root);
         }
 
         return root;

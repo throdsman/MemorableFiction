@@ -1,21 +1,58 @@
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-struct skewHeap
+template <typename T>
+struct skewNode
 {
-    int key;
-    skewHeap *left;
-    skewHeap *right;
-
-    skewHeap(int k) : key(k)
+    skewNode()
     {
-        this->left = nullptr;
-        this->right = nullptr;
+        left = nullptr;
+        right = nullptr;
     }
 
-    skewHeap *merge(skewHeap *h1, skewHeap *h2)
+    skewNode(int k, T v): key(k), value(v)
+    {
+        left = nullptr;
+        right = nullptr;
+    }
+
+    int key;
+    T value;
+    skewNode<T> *left;
+    skewNode<T> *right;
+};
+
+template <typename T>
+struct skewHeap
+{
+    skewNode<T>* root;
+
+    skewHeap()
+    {
+        root = nullptr;
+    }
+
+    skewheap(std::vector<skewNode<T>> inArr)
+    {
+        skewNode<T> *temp;
+        for (size_t i = 0; i < inArr.size(); i++)
+        {
+            temp = new skewNode<T>(inArr[i]);
+            root = this->merge(root, temp);
+        }
+    }
+
+    
+    skewNode<T> *merge(skewNode<T> *h1)
+    {
+        root = merge(root, h1);
+        return root;
+    }
+
+    skewNode<T> *merge(skewNode<T> *h1, skewNode<T> *h2)
     {
         if (h1 == nullptr)
         {
@@ -38,18 +75,7 @@ struct skewHeap
         return h1;
     }
 
-    skewHeap *constructor(skewHeap *root, int heap[], int n)
-    {
-        skewHeap *temp;
-        for (size_t i = 0; i < n; i++)
-        {
-            temp = new skewHeap(heap[i]);
-            root = this->merge(root, temp);
-        }
-        return root;
-    }
-
-    void inorder(skewHeap *root)
+    void inorder(skewNode<T> *root)
     {
         if (root == nullptr)
         {
@@ -63,5 +89,43 @@ struct skewHeap
         }
 
         return;
+    }
+
+    skewNode<T>* getRoot()
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+
+        skewNode<T> aux = *root;
+        
+        delete root;
+        root = nullptr;
+
+        root = merge(aux.right, aux.left);
+
+        return root;
+    }
+
+    // WARNING: Heap gets destroyed after
+    std::vector<skewNode<T>> getList()
+    {
+        std::vector<skewNode<T>> ret;
+        while (root != nullptr)
+        {
+            if (auto aux = getRoot())
+            {
+                ret.push_back(*aux);
+            }
+        }
+
+        return ret;
+    }
+
+    void empty()
+    {
+        delete root;
+        root = nullptr;
     }
 };

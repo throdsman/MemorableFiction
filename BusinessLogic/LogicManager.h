@@ -15,7 +15,8 @@ class LogicManager
 public:
     LogicManager()
     {
-        fileManager = new FileManager(CTYPES); 
+        fileManager = new FileManager(CTYPES);
+        Init(); 
     }
 
     // Initialize
