@@ -8,7 +8,7 @@ struct ArchivoMultimedia
 {
     string nombre;
     string paciente;
-    string dni;
+    long dni;
     string tipo;
     string ruta;
     string fecha;
@@ -18,7 +18,7 @@ struct ArchivoMultimedia
     ArchivoMultimedia() {}
     ArchivoMultimedia(string n, string t, string r, string f, string p)
         : nombre(n), tipo(t), ruta(r), fecha(f), paciente(p){}
-    ArchivoMultimedia(char s, string n, string p, string d,
+    ArchivoMultimedia(char s, string n, string p, long d,
                     string t, string r, string f, long long tam)
         : c(s), nombre(n), paciente(p), dni(d),
         tipo(t), ruta(r), fecha(f), tamano(tam) {}

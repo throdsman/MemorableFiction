@@ -42,5 +42,6 @@ public:
     void clean()
     {
         delete root;
+        root = new TrieNode();
     }
 }; 

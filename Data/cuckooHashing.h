@@ -94,7 +94,6 @@ public:
 
     void insertar(std::pair<int, T> clave)
     {
-        size+=1;
         if (this->buscar(clave.first))
         {
             std::cout << "Esa clave ya existe" << std::endl;
@@ -151,7 +150,7 @@ public:
     std::vector<int> getKeys()
     {
         std::vector<int> ret;
-        for (size_t i{0z}; i < tabla1;i++)
+        for (size_t i{0u}; i < tabla1.size();i++)
         {
             if (tabla1[i].first != -1)
             {
@@ -170,7 +169,7 @@ public:
     std::vector<T> getValues()
     {
         std::vector<T> ret;
-        for (size_t i{0z}; i < tabla1;i++)
+        for (size_t i{0u}; i < tabla1;i++)
         {
             if (tabla1[i].first != -1)
             {
@@ -189,7 +188,7 @@ public:
     std::vector<std::pair<int, T>> getList()
     {
         std::vector<std::pair<int, T>> ret;
-        for (size_t i{0z}; i < tabla1;i++)
+        for (size_t i{0u}; i < tabla1.size();i++)
         {
             if (tabla1[i].first != -1)
             {
@@ -237,7 +236,7 @@ private:
 private:
     std::vector<std::pair<int, T>> tabla1;
     std::vector<std::pair<int, T>> tabla2;
-    uint16_t size;
+    int size;
 };
 
 #endif

@@ -22,7 +22,7 @@ public:
     // Initialize
     void Init()
     {
-        
+        fileManager->SearchFiles();
     }
 
     // What kind of query is needed

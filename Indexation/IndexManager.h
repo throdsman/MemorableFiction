@@ -11,6 +11,7 @@
 #include "../Data/ArchivoMultimedia.h"
 #include "../FileHelper/FileHelper.h"
 #include "../Data/clientData.h"
+#include "../Data/DataEnums.h"
 
 using namespace FileHelper;
 
@@ -23,7 +24,7 @@ public:
 
     }
 
-    // Test Function (NEED REFACTORING)
+    // Write on Info file, Relevant Data
     void createPatientFiles(std::vector<std::pair<int, clientData>>& outClients)
     {
         std::vector<std::string> names;
@@ -44,49 +45,26 @@ public:
         int counter = 1;
         for (const auto& name: names)
         {
-            std::filesystem::path dataPath(TEMPLATE "/" "info.txt");
-            std::string aux =  getFileNameInZeros(counter);
-            std::filesystem::path outFile(PATH "/" + aux + ".abc");
-
-            ArchivoMultimedia arch;
-            arch.paciente = name;
-            arch.fecha = std::to_string(std::rand() % 24);
-            std::string fileName = name + "Info";
-            FileHelper::encriptFile(dataPath, outFile, arch, fileName);
-
-            const int cDni = (std::rand() % 29999999) + 70000000;
-            arch.dni = cDni;
-
-            this->archivoList.push_back(arch);
-
-            std::ofstream oFile(outFile, std::ios::binary);
-            std::string basicInfo = "Paciente: " + name;
-            oFile.write(basicInfo.c_str(), basicInfo.size());
-            oFile.close();
-            oFile.clear();
-
-            clientData cData(2);
-            cData.addFile(counter-1);
-            counter += 1;
-
-            if (counter%5 == 0)
+            clientData cData(5);
+            const long cDNI = (std::rand() % 29999999) + 70000000;
+            auto fileList = typesByNumber(cDNI);
+            for (const auto& f: fileList)
             {
-                std::filesystem::path templateImage(TEMPLATE "/" "scan.jpg");
-                std::string imageaux = FileHelper::getFileNameInZeros(counter);
-                std::filesystem::path imagePath(PATH "/" + imageaux + ".abc");
-
-                ArchivoMultimedia imgData;
-                imgData.paciente = name;
-                imgData.fecha = std::to_string(std::rand() % 24);
-                imgData.dni = cDni;
-                FileHelper::encriptFile(templateImage, imagePath, imgData, name + "Scan");
-                this->archivoList.push_back(imgData);
-                cData.addFile(counter-1);
+                ArchivoMultimedia arch;
+                arch.nombre = name;
+                arch.dni = cDNI;
+                arch.paciente = name;
+                arch.c = name[0];
+                arch.fecha = std::to_string(std::rand() % 24);
+                createFile(arch, counter, f);
+                this->archivoList.push_back(arch);
+                cData.addFile(counter);
                 counter += 1;
             }
-
-            outClients.push_back(std::pair(cDni, cData));
+            outClients.push_back(std::pair(cDNI, cData));
         }
+
+        std::cout << "Files ready!" << std::endl;
     }
 
     //Fill list with files in path
@@ -100,8 +78,8 @@ public:
         {
             ArchivoMultimedia am;
             auto& path = entry.path();
-            am.c = 'c';
             am.nombre = path.stem().generic_string();
+            am.c = 'c';
             am.tipo = path.extension().generic_string();
             am.ruta = path.generic_string();
             am.tamano = entry.file_size();
@@ -149,6 +127,72 @@ public:
     void eliminateIndex(int indx)
     {
         archivoList.erase(archivoList.begin() + indx);
+    }
+
+private:
+    void createFile(ArchivoMultimedia& arch, int num, FileType type)
+    {
+        std::filesystem::path dataPath(getPathByType(type));
+        std::string aux =  getFileNameInZeros(num);
+        std::filesystem::path outFile(PATH "/" + aux + ".abc");
+        FileHelper::encriptFile(dataPath, outFile, arch, arch.nombre + dataPath.stem().generic_string());
+    }
+
+    std::filesystem::path getPathByType(FileType type)
+    {
+        switch (type)
+        {
+            case FileType::jpg:
+            {
+                return (TEMPLATE "/" "scan.jpg");
+            }
+            case FileType::png:
+            {
+                return (TEMPLATE "/" "img.png");
+            }
+            case FileType::mp3:
+            {
+                return (TEMPLATE "/" "aud.mp3");
+            }
+            default:
+            case FileType::txt:
+            {
+                return (TEMPLATE "/" "info.txt");
+            }
+            case FileType::mp4:
+            {
+                return (TEMPLATE "/" "vid.mp4");
+            }
+        }
+    }
+
+    std::vector<FileType> typesByNumber(int number)
+    {
+        std::vector<FileType> ret;
+        ret.reserve(5);
+        ret.push_back(FileType::txt);
+
+        if (number & 1)
+        {
+            ret.push_back(FileType::jpg);
+        }
+
+        if (number & 2)
+        {
+            ret.push_back(FileType::mp3);
+        }
+
+        if (number & 4)
+        {
+            ret.push_back(FileType::mp4);
+        }
+
+        if (number & 8)
+        {
+            ret.push_back(FileType::png);
+        }
+
+        return ret;
     }
 
 private:

@@ -32,7 +32,7 @@ private:
     skewHeap<ArchivoMultimedia> heapFecha; // Motor de búsqueda por fechas
     skewHeap<ArchivoMultimedia> heapSize; // Motor de búsqueda por tamaño
     cHash<clientData> dniStorage; // Información relevante del cliente
-    unionFind ufTypes;
+    unionFind ufTypes; // Motor de búsqueda por tipo de archivo
     int currentDNISearched= 0; // Paciente actual en revisión
     const int Types;
 
@@ -59,7 +59,7 @@ public:
     void guardarDataCliente(int dni, clientData d)
     {
         this->dniStorage.insertar({dni, d});
-        std::cout << dni << std::endl;
+        std::cout << " - " << dni << std::endl;
     }
 
     void clearCurrentSearch()
@@ -105,10 +105,10 @@ public:
 
         currentDNISearched = DNI;
         std::vector<int> indexes = dniStorage.getData(DNI).getFl(); // obtiene los indices de los files asociados del paciente
-        ufTypes = unionFind(indexes.size(), Types);
+        ufTypes = unionFind(dniStorage.getSize(), Types);
         for (const auto& indx: indexes)
         {
-            ArchivoMultimedia arch = indexManager->get(indx);
+            ArchivoMultimedia arch = indexManager->get(indx - 1);
             std::cout << indx << " : " << arch.nombre << std::endl;
             indiceHash[arch.nombre] = indx; // busqueda exacta
             indiceTrie.insertar(arch.nombre, indx); // parcial
@@ -170,7 +170,7 @@ public:
 
         if (indiceHash.count(nombre)) {
             int i = indiceHash[nombre];
-            cout << "[EXACTA] Encontrado: " << indexManager->get(i).ruta << endl;
+            cout << "Archivo Encontrado! Ruta: " << indexManager->get(i).ruta << endl;
         } else cout << "No hay coincidencia exacta." << endl;
     }
  
@@ -255,7 +255,8 @@ public:
 
     void ImprimirArchivo(ArchivoMultimedia a)
     {
-        std::printf("- Archivo: %s, Tamaño: %i bytes, Ext: %s, Path: %s \n", a.nombre, a.tamano, a.tipo, a.ruta);
+        std::string show("Nombre: " + a.nombre + ", Tamano: " + std::to_string(a.tamano) + " bytes, Tipo: " + a.tipo + ", Ruta: " + a.ruta);
+        std::cout << show  << std::endl;
     }
 
 };

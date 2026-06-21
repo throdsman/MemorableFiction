@@ -25,7 +25,7 @@ public:
     QueryType queryType;
     SortType sortType;
     UpdateType updateType;
-    int DNI;
+    long DNI;
     std::string preFix;
 };
 

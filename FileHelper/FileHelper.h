@@ -51,7 +51,8 @@ namespace FileHelper
            targetFile.write(buffer, sourceFile.gcount());
         }
 
-        //delete buffer;
+        delete buffer;
+        buffer = nullptr;
         sourceFile.close();
         targetFile.close();
 
