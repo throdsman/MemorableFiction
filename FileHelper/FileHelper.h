@@ -40,6 +40,7 @@ namespace FileHelper
         outInfo.tipo = extension;
         outInfo.nombre = name;
         outInfo.ruta = outFile.generic_string();
+        outInfo.tamano = std::filesystem::file_size(inFile);
         
         std::ifstream sourceFile(inFile, std::ios::binary);
         std::ofstream targetFile(outFile, std::ios::binary);

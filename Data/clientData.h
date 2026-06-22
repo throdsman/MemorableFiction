@@ -14,7 +14,7 @@ struct clientData
     {
     }
 
-    clientData(int minArchives)
+    clientData(int minArchives, std::string n) : name(n)
     {
         this->fileList.reserve(minArchives);
     }
@@ -22,6 +22,11 @@ struct clientData
     void addFile(int indx)
     {
         this->fileList.push_back(indx);
+    }
+
+    const std::string& getName()
+    {
+        return name;
     }
 
     const std::vector<int> &getFl()
@@ -43,6 +48,7 @@ struct clientData
 
 private:
     std::vector<int> fileList;
+    std::string name;
 };
 
 #endif

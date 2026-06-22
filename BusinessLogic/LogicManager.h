@@ -29,6 +29,11 @@ public:
     void generateQuery(Query type)
     {
         currentQuery = type;
+        currentQuery.bActive = true;
+
+        fileManager->clearCurrentSearch();
+        fileManager->searchDNIFiles(currentQuery.DNI);
+
         switch (type.queryType)
         {
             case QueryType::ordenation:
@@ -38,6 +43,8 @@ public:
             }
             case QueryType::search:
             {
+                // Insert if exist return archive name
+                // If not, prefix tree search for prefix coincidence
                 startSearch();
                 break;
             }
@@ -49,13 +56,31 @@ public:
         }
     }
 
+    bool do_DNI_Exist(long dni)
+    {
+        return fileManager->dni_exist(dni);
+    }
+
+    bool is_query_active()
+    {
+        return currentQuery.bActive;
+    }
+
+    bool show_files_related(long dni)
+    {
+        if (!fileManager->dni_exist(dni))
+        {
+            return false;
+        }
+
+        fileManager->showFiles(dni);
+        return true;
+    }
+
 private:
 
     void createOrdenation()
     {
-        fileManager->clearCurrentSearch();
-        fileManager->searchDNIFiles(currentQuery.DNI);
-
         auto search = currentQuery.orderType;
         switch (search)
         {
@@ -84,7 +109,10 @@ private:
 
     void startSearch()
     {
-        fileManager->autocompletar(currentQuery.preFix);
+        if (!fileManager->buscarExacta(currentQuery.preFix))
+        {
+            fileManager->autocompletar(currentQuery.preFix);
+        }
     }
 
     void updateStructures()

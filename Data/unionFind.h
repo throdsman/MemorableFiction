@@ -10,7 +10,8 @@ class unionFind
 
 private: 
 
-    vector<int> parent; 
+    // <Parent Indx, Ram Index>
+    vector<std::pair<int, int>> parent; 
     vector<int> rango; 
 
 public: 
@@ -20,17 +21,21 @@ public:
         
     }
 
-    unionFind(int n, int types) { 
-
+    unionFind(int n, int types, std::vector<int> indexes) 
+    { 
         clear(n, types);
 
+        for (size_t i{0u}; i < indexes.size(); i++)
+        {
+            parent[i + types].second = indexes[i];
+        }
     } 
 
     int find(int x) 
     { 
-        int root = parent[x];
+        int root = parent[x].first;
 
-        if (this->parent[root] != root)
+        if (this->parent[root].first != root)
         {
             return find(root);
         }
@@ -41,12 +46,12 @@ public:
     std::vector<int> get(int x)
     {
         std::vector<int> ret;
-        int val = parent[x];
+        int val = parent[x].first;
         while (val != x)
         {
-            ret.push_back(val);
+            ret.push_back(parent[val].second);
             x = val;
-            val = parent[val];
+            val = parent[val].first;
         }
         return ret;
     }
@@ -61,15 +66,15 @@ public:
 
 
         if (rango[raizA] < rango[raizB]) { 
-            parent[raizA] = raizB; 
+            parent[raizA].first = raizB; 
             rango[raizB] += rango[raizA];
         } 
         else if (rango[raizA] > rango[raizB]) { 
-            parent[raizB] = raizA; 
+            parent[raizB].first = raizA; 
             rango[raizA] += rango[raizB];
         } 
         else { 
-            parent[raizB] = raizA; 
+            parent[raizB].first = raizA; 
             rango[raizA]++; 
         } 
 
@@ -88,7 +93,7 @@ public:
 
                  << " -> Grupo " 
 
-                 << parent[i] << endl; 
+                 << parent[i].first << endl; 
 
         } 
 
@@ -106,7 +111,7 @@ public:
             {
                 rango[i] = -1;
             }
-            parent[i] = i;
+            parent[i].first = i;
         } 
     }
 };

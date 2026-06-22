@@ -42,10 +42,10 @@ public:
         
         this->archivoList.reserve(names.size());
 
-        int counter = 1;
+        int counter = 0;
         for (const auto& name: names)
         {
-            clientData cData(5);
+            clientData cData(5, name);
             const long cDNI = (std::rand() % 29999999) + 70000000;
             auto fileList = typesByNumber(cDNI);
             for (const auto& f: fileList)
@@ -56,7 +56,7 @@ public:
                 arch.paciente = name;
                 arch.c = name[0];
                 arch.fecha = std::to_string(std::rand() % 24);
-                createFile(arch, counter, f);
+                createFile(arch, counter + 1, f);
                 this->archivoList.push_back(arch);
                 cData.addFile(counter);
                 counter += 1;

@@ -17,7 +17,7 @@ public:
     Query(OrderType t, FileType f, QueryType q, SortType s, UpdateType u)
     : orderType(t), fileType(f), queryType(q), sortType(s), updateType(u)
     {
-
+        
     }
 public:
     OrderType orderType;
@@ -25,8 +25,9 @@ public:
     QueryType queryType;
     SortType sortType;
     UpdateType updateType;
-    long DNI;
+    long DNI = 0;
     std::string preFix;
+    bool bActive = false;
 };
 
 #endif
