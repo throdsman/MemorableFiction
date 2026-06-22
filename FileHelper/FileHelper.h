@@ -45,15 +45,12 @@ namespace FileHelper
         std::ifstream sourceFile(inFile, std::ios::binary);
         std::ofstream targetFile(outFile, std::ios::binary);
 
-        const size_t bufferSize(4096);
-        char *buffer = new char[bufferSize];
-        while (sourceFile.read(buffer, bufferSize) || sourceFile.gcount() > 0)
+        char buffer = ' ';
+        while (sourceFile.get(buffer) || sourceFile.gcount() > 0)
         {
-           targetFile.write(buffer, sourceFile.gcount());
+           targetFile.put(buffer + outInfo.c);
         }
 
-        delete buffer;
-        buffer = nullptr;
         sourceFile.close();
         targetFile.close();
 
@@ -158,11 +155,13 @@ namespace FileHelper
             std::ifstream sourceFile(inData.ruta, std::ios::binary);
             std::ofstream targetFile(outP, std::ios::binary);
             outData.ruta = outP.generic_string();
-            
-            const size_t bufferSize = 4096;
-            std::vector<char> buffer(bufferSize);
-            while (sourceFile.read(buffer.data(), bufferSize) || sourceFile.gcount() > 0) {
-                targetFile.write(buffer.data(), sourceFile.gcount());
+            outData.nombre = inData.nombre;
+            outData.tipo = inData.tipo;
+            outData.tamano = inData.tamano;
+
+            char buffer = ' ';
+            while (sourceFile.get(buffer) || sourceFile.gcount() > 0) {
+                targetFile.put(buffer - inData.c);
             }
 
 
@@ -216,6 +215,11 @@ namespace FileHelper
         a.resize(NUMZEROS - digits, '0');
         a += std::to_string(n);
         return a;
+    }
+
+    string path_to_aux()
+    {
+        return AUX;
     }
 
     bool do_file_exist(std::string path)

@@ -15,7 +15,7 @@
 #include "../Data/trieStruct.h"
 #include "../Data/unionFind.h"
 #include "../Data/DataEnums.h"
-#include "../Data/PathsNDefines.h"
+//#include "../Data/PathsNDefines.h"
 #include "../FileHelper/FileHelper.h"
 #include "../Indexation/IndexManager.h"
 
@@ -23,6 +23,9 @@ class IndexManager;
 
 using namespace std;
 
+// Clase encargada de Manejas las busquedas, se apoya de File Helper para el manejo de carpetas
+// Principalmente, se encarga de realizar los ordenamientos y busquedas que le solicita Logic Manager
+// Adempas de tratar directamente con IndexManager,el cual contiene los indices en memoria de todos los archivos médicos
 class FileManager 
 {
 private:
@@ -35,6 +38,7 @@ private:
     unionFind ufTypes; // Motor de búsqueda por tipo de archivo
     int currentDNISearched= 0; // Paciente actual en revisión
     const int Types;
+    pair<long, vector<ArchivoMultimedia>> filesCreated;
 
 public:
 
@@ -55,13 +59,15 @@ public:
         }
     }
 
-
+    // Guarda la data de un nuevo cliente
     void guardarDataCliente(int dni, clientData d)
     {
         this->dniStorage.insertar({dni, d});
         std::cout << " - " << dni << std::endl;
     }
 
+    // Limpia la busqueda, regresa el estado de los data structures a uno default, donde carecen de datos ingresado. Se espera que la capa lógica pregunte ->
+    // -> el dni del paciente para funcionar.
     void clearCurrentSearch()
     {
         this->currentDNISearched = 0;
@@ -72,6 +78,7 @@ public:
         heapSize.empty();
     }
 
+    // Actualiza las estructuras dependiendo si encontro un file que estaba faltando, y procede a retirarlo de la lista de archivos
     void updateStructures(bool upscaling)
     {
         int upscaleValue = (upscaling) ? 1.2 : .8 ;
@@ -99,6 +106,7 @@ public:
         return this->dniStorage.buscar(dni);
     }
 
+    // Función principal que, actualiza los data structures con los archivos relacionados al dni ingresado
     bool searchDNIFiles(int DNI)
     {
         if (!dni_exist(DNI))
@@ -125,6 +133,7 @@ public:
         return true;
     }
 
+    // muestra los files relacionados al dni ingresado, en caso no se ingrese uno se toma el dni actualmente usado
     void showFiles(long dni = 0)
     {
         if (dni == 0)
@@ -143,6 +152,7 @@ public:
         }
     }
 
+    // muestra la lista de dnis en cache
     void showDNI()
     {
         std::cout << "DNIs: " << std::endl;
@@ -153,6 +163,7 @@ public:
         std::cout << "--------------------------------" << std::endl;
     }
 
+    // agrega los archivos por tipo al union find
     void agregarTipoArchivo(std::string tipo, int i)
     {
         int index = -1;
@@ -228,6 +239,7 @@ public:
         }
     }
 
+    // Ordenamiento por nombre (orden alfabético)
     void buscarPorNombre()
     {
         auto words = indiceTrie.obtenerPalabras();
@@ -300,6 +312,7 @@ public:
         cout << "\n-------------------------------------------------------" << endl; 
     }
 
+    // Ordenamiento por tamano
     void busquedaPorSize()
     {
         auto files = heapSize.getList();
@@ -310,6 +323,49 @@ public:
         }
     }
 
+    void reCreateDNIFilesRelated(int dni = 0)
+    {
+        if (dni == 0)
+        {
+            dni = currentDNISearched;
+        }
+
+        if (filesCreated.first != dni)
+        {
+            filesCreated.second.clear();
+            clearFilesRelated();
+        }
+
+        filesCreated.first = dni;
+        auto indexes = dniStorage.getData(dni).getFl();
+        for (const auto& i: indexes)
+        {
+            ArchivoMultimedia arch = indexManager->get(i);
+            ArchivoMultimedia out;
+            FileHelper::recreateOriginalFile(arch, out, FileHelper::path_to_aux());
+            filesCreated.second.push_back(out);
+        }
+    }
+
+    void clearFilesRelated()
+    {
+        if (filesCreated.first == 0)
+        {
+            return;
+        }
+
+        if (filesCreated.second.size() <= 0)
+        {
+            return;
+        }
+
+        for (const auto& f: filesCreated.second)
+        {
+            FileHelper::eliminateFile(f.ruta);
+        }
+    }
+
+    // función de apoyo para imprimir archivos
     void ImprimirArchivo(ArchivoMultimedia a)
     {
         std::string show("Nombre: " + a.nombre + ", Tamano: " + std::to_string(a.tamano) + " bytes, Tipo: " + a.tipo + ", Ruta: " + a.ruta);

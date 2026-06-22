@@ -15,6 +15,7 @@
 
 using namespace FileHelper;
 
+// función que maneja los archivos en cache
 class IndexManager
 {
 public:
@@ -24,7 +25,7 @@ public:
 
     }
 
-    // Write on Info file, Relevant Data
+    // Lee el archivo de nombres y crea los archivos con dnis aleatorios
     void createPatientFiles(std::vector<std::pair<int, clientData>>& outClients)
     {
         std::vector<std::string> names;
@@ -111,6 +112,7 @@ public:
         return archivoList.size();
     }
 
+    // Revisa los archivos en cache, si siguen existiendo los archivos que ya estan guardados
     std::vector<int> checkIntegrity()
     {
         std::vector<int> ret;
@@ -130,6 +132,7 @@ public:
     }
 
 private:
+    // crea un archivo en base al tipo de archivo ingresado y regresa datos del archivo creado
     void createFile(ArchivoMultimedia& arch, int num, FileType type)
     {
         std::filesystem::path dataPath(getPathByType(type));
@@ -138,6 +141,7 @@ private:
         FileHelper::encriptFile(dataPath, outFile, arch, arch.nombre + dataPath.stem().generic_string());
     }
 
+    // función de apoyo que regresar el path de cada tipo de archivo template para la creación de nuevos
     std::filesystem::path getPathByType(FileType type)
     {
         switch (type)

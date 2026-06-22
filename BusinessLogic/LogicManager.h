@@ -10,6 +10,7 @@
 #include "../Data/ArchivoMultimedia.h"
 #include "../Data/PathsNDefines.h"
 
+// Clase encargada de recibir consultas(Query) y coordinar acciones con la clase File Manager
 class LogicManager
 {
 public:
@@ -25,7 +26,7 @@ public:
         fileManager->SearchFiles();
     }
 
-    // What kind of query is needed
+    // Actualiza query y lo marca como activo, para iniciar el proceso de búsqueda/ordenamiento
     void generateQuery(Query query)
     {
         if (!query.bActive)
@@ -40,6 +41,7 @@ public:
 
         fileManager->clearCurrentSearch();
         fileManager->searchDNIFiles(currentQuery.DNI);
+        fileManager->reCreateDNIFilesRelated(currentQuery.DNI);
 
         switch (query.queryType)
         {
@@ -63,6 +65,8 @@ public:
         }
     }
 
+    // Funciones que exponen comportamiento de File Manager, ya que el proyecto usa responsabilidad limitada entre clases para evitar código spaguetti
+
     bool do_DNI_Exist(long dni)
     {
         return fileManager->dni_exist(dni);
@@ -84,8 +88,15 @@ public:
         return true;
     }
 
+    void clean_managers()
+    {
+        fileManager->clearCurrentSearch();
+        fileManager->clearFilesRelated();
+    }
+
 private:
 
+    // función interna que coordina con file manager que clase de ordenamiento se va a realizar a los archivos actuales en cache
     void createOrdenation()
     {
         auto search = currentQuery.orderType;
@@ -114,6 +125,7 @@ private:
         }
     }
 
+    // Busqueda exacta, de no encontrar archivo directamente, pregunta por prefijo
     void startSearch()
     {
         if (!fileManager->buscarExacta(currentQuery.preFix))
@@ -122,9 +134,10 @@ private:
         }
     }
 
+    // Actualiza las estructuras de datos usadas para ordenamiento y storage de indices, principalmente re hash
     void updateStructures()
     {
-        // Logic needed
+        // Logic 
         // File manager call (Long process, check every DNI - key- so every file integrity is in good condition, then if at least one file is not intact) ->
         //                      -> its index is discarded from its proper DNI value list
         //                      - Other Case: Max Capacity - Current Capacity is close, need to rehash  and reAdd the hashed archives

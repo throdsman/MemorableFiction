@@ -12,6 +12,7 @@ int main()
     // Seleccionar un DNI
     std::printf("Ingresar DNI de paciente: \n");
     Query consulta;
+    consulta.bActive = true;
     std::cin >> consulta.DNI;
 
     if (!lm->do_DNI_Exist(consulta.DNI))
@@ -28,7 +29,7 @@ int main()
     int option = 0;
     do
     {
-        std::printf("Ingresar Opcion : \n 1) Ordenar Archivos \n 2) Buqueda por prefijos \n %s \n", ((lm->is_query_active() ? "3) Finalizar Consulta" : "")));
+        std::printf("Ingresar Opcion : \n 1) Ordenar Archivos \n 2) Busqueda por prefijos \n %s \n", ((lm->is_query_active() ? "3) Finalizar Consulta" : "")));
         std::cin >> option;
 
         // Permite cancelas la solicitud
@@ -121,6 +122,8 @@ int main()
         option = 0;
     
     } while (lm->is_query_active());
+
+    lm->clean_managers();
 
     return 0;
 }

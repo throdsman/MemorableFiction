@@ -1,0 +1,7 @@
+Paciente:
+DNI:
+Archivos Relacionados:
+Busqueda
+{
+
+}
