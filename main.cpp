@@ -20,16 +20,24 @@ int main()
         return 1;
     }
 
+    // Muestras los files relacionados al dni ingresado, de manera que se puede hacer una comparativa con las busquedas y ordenamientos a continuación sugeridos...
     lm->show_files_related(consulta.DNI);
 
+    // Loop principal que actualiza la clase Query creada anteriormente
+    // Query provee información relevante que sirvé a la capa lógica para coordinar ordenamientos y busquedas
     int option = 0;
     do
     {
         std::printf("Ingresar Opcion : \n 1) Ordenar Archivos \n 2) Buqueda por prefijos \n %s \n", ((lm->is_query_active() ? "3) Finalizar Consulta" : "")));
         std::cin >> option;
 
-        // Búsqueda
-        if (option == 2)
+        // Permite cancelas la solicitud
+        if (lm->is_query_active() && option == 3)
+        {
+            consulta.bActive = false;
+        }
+        // Búsqueda exacta o prefijo
+        else if (option == 2)
         {
             std::string prefix = "";
 
@@ -107,7 +115,8 @@ int main()
         {
             std::printf("Opción no valida \n");
         }
-            
+        
+        // Envia el Query creado y actualiza para su procesamiento
         lm->generateQuery(consulta);
         option = 0;
     

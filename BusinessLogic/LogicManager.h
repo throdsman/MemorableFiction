@@ -26,15 +26,22 @@ public:
     }
 
     // What kind of query is needed
-    void generateQuery(Query type)
+    void generateQuery(Query query)
     {
-        currentQuery = type;
+        if (!query.bActive)
+        {
+            currentQuery.bActive = false;
+            fileManager->clearCurrentSearch();
+            return;
+        }
+
+        currentQuery = query;
         currentQuery.bActive = true;
 
         fileManager->clearCurrentSearch();
         fileManager->searchDNIFiles(currentQuery.DNI);
 
-        switch (type.queryType)
+        switch (query.queryType)
         {
             case QueryType::ordenation:
             {
