@@ -85,7 +85,7 @@ public:
         dniStorage.reHash(dniStorage.getSize() * upscaleValue);
 
         int diff = (FileHelper::numOfFilesInPath(PATH)) - indexManager->getCount();
-        if (diff < 0)
+        if (diff > 0)
         {
             auto missingList = indexManager->checkIntegrity();
             for (const auto& m: missingList)
@@ -117,20 +117,24 @@ public:
 
         currentDNISearched = DNI;
         std::vector<int> indexes = dniStorage.getData(DNI).getFl(); // obtiene los indices de los files asociados del paciente
+
         ufTypes = unionFind(indexes.size() + Types, Types, indexes);
         int counter = 0;
         for (const auto& indx: indexes)
         {
             ArchivoMultimedia arch = indexManager->get(indx);
-            indiceHash[arch.nombre] = indx; // busqueda exacta
-            indiceTrie.insertar(arch.nombre, indx); // parcial
-            heapFecha.merge(new skewNode<ArchivoMultimedia>(std::stoi(arch.fecha), arch)); // fecha
-            heapSize.merge(new skewNode<ArchivoMultimedia>(arch.tamano, arch)); // tamano
-            agregarTipoArchivo(arch.tipo, counter + (Types));// tipo
-            counter += 1;
+            if (FileHelper::do_file_exist(arch.ruta))
+            {
+                indiceHash[arch.nombre] = indx; // busqueda exacta
+                indiceTrie.insertar(arch.nombre, indx); // parcial
+                heapFecha.merge(new skewNode<ArchivoMultimedia>(std::stoi(arch.fecha), arch)); // fecha
+                heapSize.merge(new skewNode<ArchivoMultimedia>(arch.tamano, arch)); // tamano
+                agregarTipoArchivo(arch.tipo, counter + (Types));// tipo
+                counter += 1;
+            }
         }
 
-        return true;
+        return counter == 0;
     }
 
     // muestra los files relacionados al dni ingresado, en caso no se ingrese uno se toma el dni actualmente usado
@@ -261,7 +265,7 @@ public:
 
         for (const auto& f: files)
         {
-            ImprimirArchivo(f.value);
+            ImprimirArchivo(f);
         }
     }
 
@@ -319,7 +323,7 @@ public:
 
         for (const auto& f: files)
         {
-            ImprimirArchivo(f.value);
+            ImprimirArchivo(f);
         }
     }
 

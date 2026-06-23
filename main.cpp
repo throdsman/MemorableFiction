@@ -3,32 +3,18 @@
 #include <string>
 #include "BusinessLogic/LogicManager.h"
 
-
-int main()
+void askDNI(long& dni)
 {
-    // Muestra los DNIS
-    LogicManager* lm = new LogicManager();
-
     // Seleccionar un DNI
     std::printf("Ingresar DNI de paciente: \n");
-    Query consulta;
-    consulta.bActive = true;
-    std::cin >> consulta.DNI;
+    std::cin >> dni;
+}
 
-    if (!lm->do_DNI_Exist(consulta.DNI))
-    {
-        std::printf("%i No pertenece a la db!", consulta.DNI);
-        return 1;
-    }
-
-    // Muestras los files relacionados al dni ingresado, de manera que se puede hacer una comparativa con las busquedas y ordenamientos a continuación sugeridos...
-    lm->show_files_related(consulta.DNI);
-
-    // Loop principal que actualiza la clase Query creada anteriormente
-    // Query provee información relevante que sirvé a la capa lógica para coordinar ordenamientos y busquedas
-    int option = 0;
+void primaryLoop(Query& consulta, LogicManager* lm)
+{ 
     do
     {
+        int option = 0;
         std::printf("Ingresar Opcion : \n 1) Ordenar Archivos \n 2) Busqueda por prefijos \n %s \n", ((lm->is_query_active() ? "3) Finalizar Consulta" : "")));
         std::cin >> option;
 
@@ -42,8 +28,20 @@ int main()
         {
             std::string prefix = "";
 
+            if (consulta.preFix.size() > 0)
+            {
+                std::printf("Borrar Busqueda Anterior?: \n  -> %s <- (Y/N) \n", consulta.preFix);
+                char y = ' ';
+                std::cin >> y;
+                y = tolower(y);
+                if (y == 'y')
+                {
+                    consulta.preFix = "";
+                }
+            }
+
             consulta.queryType = QueryType::search;
-            std::printf("Ingresar Nombre de Archivo a buscar: \n");
+            std::printf("Ingresar Nombre de Archivo a buscar: \n %s", consulta.preFix);
             std::cin >> prefix;
 
             consulta.preFix += prefix;
@@ -116,14 +114,64 @@ int main()
         {
             std::printf("Opción no valida \n");
         }
-        
+
         // Envia el Query creado y actualiza para su procesamiento
         lm->generateQuery(consulta);
-        option = 0;
     
     } while (lm->is_query_active());
+}
 
-    lm->clean_managers();
+int main()
+{
+    LogicManager* lm = new LogicManager();
 
+    bool flag = false;
+    while(!flag)
+    {
+        Query consulta;
+        int option;
+        std::printf("Ingresar Opcion : \n 1) Empezar Busqueda \n 2) Verificar Integridad de Archivo \n 3) Salir \n");
+        std::cin >> option;
+        switch (option)
+        {
+            case 1:
+            {
+                consulta.bActive = true;
+                            
+                do 
+                {
+                    askDNI(consulta.DNI);
+
+                } while(!lm->do_DNI_Exist(consulta.DNI));
+
+                // Muestras los files relacionados al dni ingresado, de manera que se puede hacer una comparativa con las busquedas y ordenamientos a continuación sugeridos...
+                lm->show_files_related(consulta.DNI);
+
+                primaryLoop(consulta, lm);
+
+                break;
+            }
+            case 2:
+            {
+                consulta.bActive = true;
+                consulta.queryType = QueryType::update;
+                consulta.updateType = UpdateType::upscale;
+
+                // Envia el Query creado y actualiza para su procesamiento
+                lm->generateQuery(consulta);
+                break;
+            }
+            case 3:
+            {
+                flag = true;
+                break;
+            }
+            default:
+            {
+                std::printf("Ingresar Opcion valida:");
+                break;
+            }
+        }
+    }
     return 0;
 }

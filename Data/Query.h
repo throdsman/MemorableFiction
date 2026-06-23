@@ -26,6 +26,7 @@ public:
     SortType sortType;
     UpdateType updateType;
     long DNI = 0;
+    std::string ExactSearch;
     std::string preFix;
     bool bActive = false;
 };

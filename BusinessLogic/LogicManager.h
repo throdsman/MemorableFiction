@@ -20,6 +20,11 @@ public:
         Init(); 
     }
 
+    ~LogicManager()
+    {
+        clean_managers();
+    }
+
     // Initialize
     void Init()
     {
@@ -40,7 +45,14 @@ public:
         currentQuery.bActive = true;
 
         fileManager->clearCurrentSearch();
-        fileManager->searchDNIFiles(currentQuery.DNI);
+        bool hasFiles = fileManager->searchDNIFiles(currentQuery.DNI);
+
+        if (!hasFiles)
+        {
+            std::printf("Paciente no cuenta con archivos en el sistema \n");
+            return;
+        }
+
         fileManager->reCreateDNIFilesRelated(currentQuery.DNI);
 
         switch (query.queryType)

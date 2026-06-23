@@ -212,9 +212,15 @@ public:
         tabla1.clear();
         tabla2.clear();
 
+        tabla1.resize(size, std::pair<int, T>());
+        tabla2.resize(size, std::pair<int, T>());
+
         for (const auto& v: aux)
         {
-            insertar(v);
+            if (v.first != 0)
+            {
+                insertar(v);
+            }
         }
     }
 

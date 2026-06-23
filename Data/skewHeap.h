@@ -91,33 +91,42 @@ struct skewHeap
         return;
     }
 
-    skewNode<T>* getRoot()
+    T getRoot()
     {
         if (root == nullptr)
         {
-            return nullptr;
+            return T();
         }
 
-        skewNode<T> aux = *root;
+        T value = root->value;
         
+        skewNode<T>* l = root->left;
+        skewNode<T>* r = root->right;
         delete root;
-        root = nullptr;
 
-        root = merge(aux.right, aux.left);
+        if (root->left == nullptr)
+        {
+            root = r;
+        }
+        else if (root->right == nullptr)
+        {
+            root = l;
+        }
+        else
+        {
+            root = merge(l, r);
+        }
 
-        return root;
+        return value;
     }
 
     // WARNING: Heap gets destroyed after
-    std::vector<skewNode<T>> getList()
+    std::vector<T> getList()
     {
-        std::vector<skewNode<T>> ret;
+        std::vector<T> ret;
         while (root != nullptr)
         {
-            if (auto aux = getRoot())
-            {
-                ret.push_back(*aux);
-            }
+            ret.push_back(getRoot());
         }
 
         return ret;
