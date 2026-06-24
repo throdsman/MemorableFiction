@@ -2,7 +2,7 @@
 #include <vector>
 #include <utility>
 
-#define TAM 1000
+#define TAM 100000
 #define MAX_REUBICACIONES 16
 
 #ifndef CHASH

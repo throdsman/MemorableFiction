@@ -134,7 +134,7 @@ public:
             }
         }
 
-        return counter == 0;
+        return counter != 0;
     }
 
     // muestra los files relacionados al dni ingresado, en caso no se ingrese uno se toma el dni actualmente usado
